@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "connexion[swagger-ui,uvicorn]>=3.3.0",
+    "httpx2>=2.13.1",
     "portalocker>=4.3.2",
+    "pyyaml>=6.0",
     "requests>=2.34.2",
 ]

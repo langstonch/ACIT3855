@@ -1,23 +1,46 @@
+import logging
+import logging.config
+import time
+from pathlib import Path
+
 import connexion
 import requests
+import yaml
 from connexion import NoContent
 from starlette.responses import RedirectResponse
 
 STORAGE_SERVICE_URL = "http://localhost:8090"
 
+with Path(__file__).with_name("log_conf.yml").open(encoding="utf-8") as log_file:
+    logging.config.dictConfig(yaml.safe_load(log_file))
+
+logger = logging.getLogger("receiver")
+
 def report_cpu_usage(body):
+    trace_id = time.time_ns()
+    body["trace_id"] = trace_id
+    logger.info(f"Received 'cpu_usage' event | trace_id: {trace_id}")
     response = requests.post(
         f"{STORAGE_SERVICE_URL}/reports/cpu",
         json=body,
         headers={"Content-Type": "application/json"}
     )
+    logger.debug(
+        f"Response for event 'cpu_usage' (id: {trace_id}) has status {response.status_code}"
+    )
     return NoContent, response.status_code
 
 def report_disk_latency(body):
+    trace_id = time.time_ns()
+    body["trace_id"] = trace_id
+    logger.info(f"Received 'disk_latency' event | trace_id: {trace_id}")
     response = requests.post(
         f"{STORAGE_SERVICE_URL}/reports/disk-latency",
         json=body,
         headers={"Content-Type": "application/json"}
+    )
+    logger.debug(
+        f"Response for event 'disk_latency' (id: {trace_id}) has status {response.status_code}"
     )
     return NoContent, response.status_code
 
