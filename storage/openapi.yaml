@@ -1,0 +1,91 @@
+openapi: 3.0.3
+info:
+  title: Server Telemetry Receiver API
+  description: Ingests CPU utilization and disk latency health events from server nodes.
+  version: 1.0.0
+
+paths:
+  /reports/cpu:
+    post:
+      summary: Ingest CPU utilization metric
+      operationId: app.report_cpu_usage
+      description: Receives CPU telemetry data from a node agent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CpuUsageReport'
+      responses:
+        '201':
+          description: CPU metric successfully received
+        '400':
+          description: Invalid input or missing fields
+
+  /reports/disk-latency:
+    post:
+      summary: Ingest Disk Latency metric
+      operationId: app.report_disk_latency
+      description: Receives disk I/O latency telemetry data from a node agent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiskLatencyReport'
+      responses:
+        '201':
+          description: Disk latency metric successfully received
+        '400':
+          description: Invalid input or missing fields
+
+components:
+  schemas:
+    CpuUsageReport:
+      type: object
+      required:
+        - server_id
+        - cpu_utilization_pct
+        - timestamp
+        - core_count
+      properties:
+        server_id:
+          type: string
+          format: uuid
+          example: "a8098c1a-f86e-11da-bd1a-00112444be1e"
+        cpu_utilization_pct:
+          type: number
+          minimum: 0.0
+          maximum: 100.0
+          example: 42.5
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-09-08T09:30:00Z"
+        core_count:
+          type: integer
+          example: 8
+
+    DiskLatencyReport:
+      type: object
+      required:
+        - server_id
+        - read_latency_ms
+        - timestamp
+        - mount_point
+      properties:
+        server_id:
+          type: string
+          format: uuid
+          example: "a8098c1a-f86e-11da-bd1a-00112444be1e"
+        read_latency_ms:
+          type: number
+          minimum: 0.0
+          example: 3.45
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-09-08T09:30:00Z"
+        mount_point:
+          type: string
+          example: "/var/log"
